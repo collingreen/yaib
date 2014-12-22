@@ -1,0 +1,40 @@
+{
+    "settings": {
+        "module": "json",
+        "settings_file": "settings.json"
+    },
+
+    "persistence": {
+        "connection": "sqlite:///yaib.db",
+        "logging": false
+    },
+
+    "plugins": {
+        "root": "plugins"
+    },
+
+    "connection": {
+        "host": "irc.afternet.org",
+        "port": 6667,
+        "max_flood": 5,
+        "flood_interval": 5,
+        "flood_wait": 2,
+        "keepalive_delay": 60,
+        "command_prefix": "!",
+        "nick_command_delimiters": " c,>:;!?"
+    },
+
+    "admin": {
+        "enabled": false,
+        "admin_type": "simple",
+        "admin_password": "",
+        "admin_timeout": 600,
+        "admins": {
+        }
+    },
+
+    "nick": "new_yaib",
+    "default_channels": "yaib",
+
+    "shutup_duration": 30
+}
