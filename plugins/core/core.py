@@ -9,6 +9,14 @@ class Plugin(BasePlugin):
     """
     name = 'CorePlugin'
 
+    def createDefaultSettings(self):
+        info = (
+            "Hi, my name is {nick} and I'm an open source python irc bot. " +
+            "Check out my source code at https://github.com/collingreen/yaib!" +
+            "Try {command_prefix}help for the commands I currently support."
+        )
+        self.settings.set('yaib_info', info, initial=True)
+
     def command_login(self, user, nick, channel, more):
         """
         Logs you in to {nick} as an admin.
@@ -176,6 +184,10 @@ class Plugin(BasePlugin):
     def command_plugins(self, user, nick, channel, more):
         """Lists the loaded plugins"""
         self.send(channel, ', '.join([p.name for p in self.yaib.plugins]))
+
+    def command_info(self, user, nick, channel, more):
+        """Get some basic info about {nick}."""
+        self.reply(channel, nick, self.formatDoc(self.settings.get('yaib_info')))
 
     # TODO: make this less ugly
     def command_help(self, user, nick, channel, more):
