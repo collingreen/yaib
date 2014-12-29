@@ -71,6 +71,16 @@ class BasePlugin(object):
         """Send a message in the given channel."""
         return self.yaib.sendMessage(channel, message)
 
+    def reply(self, channel, nick, message):
+        """
+        If the channel is the bot (ie, was a private message to the bot)
+        sends a message back to the sender, otherwise sends to the channel.
+        """
+        return self.send(
+                channel if channel != self.nick else nick,
+                message
+            )
+
     def action(self, channel, action):
         """Send an action in the given channel."""
         return self.yaib.action(channel, action)
