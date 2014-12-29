@@ -44,7 +44,8 @@ class BasePlugin(object):
 
     def createDefaultSettings(self):
         """
-        Called during initialization. Use self.yaib.settings.setSettings({},
+        Called during initialization.
+        Use self.settings.setMulti({...}, initial=True)
         """
         pass
 
