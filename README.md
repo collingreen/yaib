@@ -286,3 +286,43 @@ absolutely no containment of what plugins can do; it would be
 trivial to destroy all your data or attack your machine directly.
 *You have been warned*.
 
+
+## STRUCTURE
+Yaib is broken into three distinct parts - yaib itself, modules, and
+plugins. Each one provides a different set of functionality that, together,
+makes up the entire yaib system.
+
+#### Yaib
+Yaib acts as the manager that glues all of the modules together, imports all the
+plugins, and sets up both the plugin callbacks and the plugin commands.
+
+#### Modules
+Modules are non-optional services that encapsulate a set of core yaib
+functionality like settings, persistence, admin management, and the underlying
+server connection. Modules communicate with Yaib via pubsub and can be swapped
+out for different implementations without changing Yaib or the plugins. For
+example, the default settings module saves all the settings in a local file as a
+JSON encoded string. Yaib uses the settings interface (and exposes it to the
+plugins), but switching out the settings module for a different implementation
+would allow the settings to exist in a database or online storage or anything
+else without breaking anything. Both Yaib and the plugins can be completely
+ignorant of the actual module implementation, making all of the code easier to
+work on and reason about.
+
+#### Plugins
+Plugins, on the other hand, are completely optional extras (except core) that
+add new functionality by adding callbacks for various events and by adding
+commands for users and admins. Yaib manages loading all of the plugins, parsing
+all of their commands, hooking up the correct callbacks, and exposing the
+module interfaces as necessary (like settings and persistence).
+
+Plugins enable a bot owner to pick and choose specific functionality
+for their bot and make it extremely easy for developers to create chunks of
+functionality without having to worry about anything else, letting Yaib handle
+how connections work, how information gets stored, what makes an 'admin',
+orchestrating the callbacks, and automatically building the help content for all
+the commands, organized by plugins.
+
+Check out the section on plugin development and the example plugins for more
+information.
+
