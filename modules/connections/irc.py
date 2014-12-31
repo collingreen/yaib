@@ -354,6 +354,10 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
         kicked = params[1]
         message = params[-1]
 
+        # overwrite message with blank if message is simply the kicker nick
+        if message == kicker:
+            message = ''
+
         if string.lower(kicked) == string.lower(self.nickname):
             self.kickedFrom(channel, kicker_user, kicker, message)
         else:
