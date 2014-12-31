@@ -59,6 +59,10 @@ class Plugin(BasePlugin):
         """Called when yaib does an action in a channel"""
         print "ECHO - action", channel, action
 
+    def onCommand(self, user, nick, channel, command, more):
+        """Called when {nick} runs a command on behalf of a user."""
+        print "ECHO - onCommand", user, nick, channel, command, more
+
     def onAdminCommand(self, user, nick, channel, command, more):
         """Called when {nick} runs an admin command on behalf of a user."""
         print "ECHO - onAdminCommand", user, nick, channel, command, more

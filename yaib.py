@@ -351,10 +351,12 @@ class Yaib(object):
 
             # found it, execute it
             if func:
+                command_event_name = 'onCommand'
                 func(user, nick, channel, more)
 
                 # if admin command, publish and notify plugins
                 if is_admin_command:
+                    command_event_name = 'onAdminCommand'
                     pub.sendMessage(
                         'core:adminCommand',
                         user=user,
@@ -364,13 +366,12 @@ class Yaib(object):
                         more=more
                     )
 
-                    # special cases not to send to plugins
-                    # TODO: handle this more cleanly - let plugin specify
-                    if (not func.__doc__ or
-                            self.DONT_NOTIFY_PLUGINS_FLAG not in func.__doc__):
-                        self.callInPlugins(
-                            'onAdminCommand', user, nick, channel, command, more
-                        )
+                # special cases not to send to plugins
+                if (not func.__doc__ or
+                        self.DONT_NOTIFY_PLUGINS_FLAG not in func.__doc__):
+                    self.callInPlugins(
+                        command_event_name, user, nick, channel, command, more
+                    )
 
                 return True
 
