@@ -21,7 +21,7 @@ class Plugin(BasePlugin):
         """
         Logs you in to {nick} as an admin.
         Usage: {command_prefix}login [password]
-        %does_not_notify_plugins%
+        **does_not_notify_plugins**
         """
         if self.yaib.adminManager.login(user, nick, more):
             self.send(nick, 'Logged you in!')

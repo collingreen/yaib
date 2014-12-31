@@ -36,7 +36,7 @@ class Yaib(object):
         self.plugins = []
         self.shutup_until = None
 
-        self.DONT_NOTIFY_PLUGINS_FLAG = '%does_not_notify_plugins%'
+        self.DONT_NOTIFY_PLUGINS_FLAG = '**does_not_notify_plugins**'
 
         # load configuration
         configFile = 'config.json'
