@@ -34,7 +34,7 @@
     },
 
     "nick": "new_yaib",
-    "default_channels": "yaib",
+    "default_channels": "yaibtest",
 
     "shutup_duration": 30
 }
