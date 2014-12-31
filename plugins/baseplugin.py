@@ -90,7 +90,7 @@ class BasePlugin(object):
         pass
 
 
-    def onNickChange(self, nick):
+    def onNickChange(self, nick, old_nick):
         """Called when {nick}'s nick changes."""
         pass
 

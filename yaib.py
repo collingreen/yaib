@@ -411,12 +411,12 @@ class Yaib(object):
         self.server_connection.quit()
 
     def setNick(self, nick):
-        self.nick = nick
+        old_nick = self.nick if hasattr(self, 'nick') else ''
         # TODO: support multiple connections
         if hasattr(self, 'server_connection'):
             self.server_connection.setNick(nick)
-
-        self.callInPlugins('onNickChange', nick)
+            self.nick = nick
+            self.callInPlugins('onNickChange', nick, old_nick)
 
     def sendMessage(self, channel, message):
         """

@@ -20,9 +20,9 @@ class Plugin(BasePlugin):
         """Called when ALL the plugins are loaded."""
         print "ECHO - on plugins loaded"
 
-    def onNickChange(self, nick):
+    def onNickChange(self, nick, old_nick):
         """Called when yaib's nick changes."""
-        print "ECHO - on nick change", nick
+        print "ECHO - on nick change", nick, 'from', old_nick
 
 
     def onConnected(self):
