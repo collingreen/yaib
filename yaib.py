@@ -44,7 +44,7 @@ class Yaib(object):
             f = open(configFile)
         except: # TODO: Catch the real exceptions here
             logging.error(
-                "Could not open configuration file %s. Quiting." % configFile
+                "Could not open configuration file %s. Quitting." % configFile
             )
             sys.exit(1)
 
