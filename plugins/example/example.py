@@ -62,31 +62,34 @@ class Plugin(BasePlugin):
 
     def irc_RPL_WHOISUSER(self, *args):
         """Can listen for unhandled connection events by name."""
-        #print "WHOIS USER", args
+        # print "WHOIS USER", args
         self.whois_result['user'] = '%s <%s@%s> "%s"' % (
             args[0][1], args[0][2], args[0][3], args[0][5]
         )
 
     def irc_RPL_WHOISSERVER(self, *args):
-        #print 'WHOIS SERVER: ', args
+        # print 'WHOIS SERVER: ', args
         pass
 
     def irc_RPL_WHOISCHANNELS(self, *args):
-        #print "WHOIS CHANNELS", args
+        # print "WHOIS CHANNELS", args
         channels = args[0][2].strip().split(' ')
         self.whois_result['channels'] = channels
 
     def irc_RPL_WHOISIDLE(self, *args):
-        #print "WHOIS IDLE", args
+        # print "WHOIS IDLE", args
         pass
 
     def irc_RPL_ENDOFWHOIS(self, *args):
-        #print 'END OF WHOIS'
-        self.send(self.whois_channel, self.whois_result['user'])
-        self.send(
-            self.whois_channel,
-            "Member of " + ', '.join(self.whois_result['channels'])
-        )
+        # print 'END OF WHOIS'
+        if 'user' in self.whois_result:
+            self.send(self.whois_channel, self.whois_result['user'])
+            self.send(
+                self.whois_channel,
+                "Member of " + ', '.join(self.whois_result['channels'])
+            )
+        else:
+            self.send(self.whois_channel, "No results for whois")
 
     def command_echo_wait(self, user, nick, channel, more):
         """Echos the message passed (and appends 'woohoo') after a 2 second
