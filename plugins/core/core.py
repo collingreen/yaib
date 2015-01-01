@@ -12,8 +12,9 @@ class Plugin(BasePlugin):
     def createDefaultSettings(self):
         info = (
             "Hi, my name is {nick} and I'm an open source python irc bot. " +
-            "Check out my source code at https://github.com/collingreen/yaib!" +
-            "Try {command_prefix}help for the commands I currently support."
+            "Check out my source code at " +
+            "https://github.com/collingreen/yaib! Try {command_prefix}help " +
+            "for the commands I currently support."
         )
         self.settings.set('yaib_info', info, initial=True)
 
