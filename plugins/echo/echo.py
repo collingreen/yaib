@@ -5,7 +5,7 @@ class Plugin(BasePlugin):
     name = 'EchoPlugin'
 
     def command_unicode(self, user, nick, channel, more):
-        self.send(channel, u'┠')
+        self.reply(channel, nick, u'┠')
 
     def command_test_settings(self, user, nick, channel, more):
         self.settings.set('custom', 'woohooooo')

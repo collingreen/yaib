@@ -21,14 +21,14 @@ class Plugin(BasePlugin):
         contents for this plugin. Try `{command_prefix}help example` and look
         for plugintest.
         """
-        self.send(channel, "This came from a plugin!")
+        self.reply(channel, nick, "This came from a plugin!")
 
     def admin_pluginadmintest(self, user, nick, channel, rest):
         """
         This text appears under this plugin's help menu, but only if
         you are logged in as an admin
         """
-        self.send(channel, "Admin plugin commands too!")
+        self.reply(channel, nick, "Admin plugin commands too!")
 
     def command_dbtest(self, user, nick, channel, rest):
         """
@@ -50,13 +50,13 @@ class Plugin(BasePlugin):
         stateful command.
         """
         if not rest:
-            self.send(channel, '%s: who is who?' % nick)
+            self.reply(channel, nick, '%s: who is who?' % nick)
             return False
 
         try: target_nick = rest.split(' ')[0]
         except: target_nick = rest
 
-        self.whois_channel= channel
+        self.whois_channel= channel if channel != self.nick else nick
         self.whois_result = {'nick': target_nick}
         self.yaib.server_connection.whois(target_nick)
 
@@ -91,8 +91,9 @@ class Plugin(BasePlugin):
     def command_echo_wait(self, user, nick, channel, more):
         """Echos the message passed (and appends 'woohoo') after a 2 second
         delay. Demonstrates scheduling future commands."""
-        self.send(channel, "waiting...")
-        self.callLater(2, self.sendAfterWait, channel, more, other='woohoo')
+        self.reply(channel, nick, "waiting...")
+        target = channel if channel != self.nick else nick
+        self.callLater(2, self.sendAfterWait, target, more, other='woohoo')
 
     def sendAfterWait(self, channel, message, notused=None, other=''):
         """echo_wait command calls this after a delay"""
