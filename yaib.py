@@ -62,6 +62,7 @@ class Yaib(object):
         # TODO: move this config check to settings module itself
         if self.config.settings.module == 'json':
             self.settings = settings.json(self.config)
+            self.settings.loadSettings()
         else:
             logging.error(
                 "Unsupported settings module %s. Exiting." %
