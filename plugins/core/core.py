@@ -215,7 +215,7 @@ class Plugin(BasePlugin):
                 searchables = [self]
             else:
                 # look for plugin and use that
-                for plugin in self.plugins:
+                for plugin in self.yaib.plugins:
                     if more.find(plugin.name) >= 0:
                         searchables.append(plugin)
 
