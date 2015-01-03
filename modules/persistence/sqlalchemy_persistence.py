@@ -91,14 +91,14 @@ class SqlAlchemyPersistence(object):
             session.close()
 
 
-class CustomBase(object):
-    """
-    A base class for all declarative sqlalchemy classes which ensures
-    the tablename is a lowercase version of the class name.
-    """
-    @declared_attr
-    def __tablename__(cls):
-        # return ('%s_%s' % (__file__, cls.__name__)).lower()
-        return cls.__name__.lower()
-
-    id = Column(Integer, primary_key=True)
+def getModelBase(prefix=''):
+    """Returns a custom model base to use for sqlalchemy declarative model
+    classes. Ensures the table has an integer primary key named 'id' and
+    that the itablename is a lowercase version of the prefix class name to
+    help prevent name collisions."""
+    class CustomBase(object):
+        id = Column(Integer, primary_key=True)
+        @declared_attr
+        def __tablename__(cls):
+            return ('%s_%s' % (prefix, cls.__name__)).lower()
+    return CustomBase

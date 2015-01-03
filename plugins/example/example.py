@@ -8,7 +8,7 @@ Includes custom settings and using the persistence layer via sqlalchemy.
 from plugins.baseplugin import BasePlugin
 
 # import models for this plugin - import from top
-from plugins.example.models import ExampleThing
+from plugins.example.models import Thing
 
 
 class Plugin(BasePlugin):
@@ -34,10 +34,10 @@ class Plugin(BasePlugin):
         """
         Demonstrates how to correctly use the sqlalchemy db session from the
         persistence module. Every time this function is called, this creates a
-        new row in the ExampleThing table.
+        new row in the Thing table.
         """
         with self.getDbSession() as db_session:
-            contrived_example = ExampleThing(
+            contrived_example = Thing(
                     name='hello world',
                     count=99
                 )
