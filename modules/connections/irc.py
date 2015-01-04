@@ -61,6 +61,9 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 
         self.msg(to_bytes(channel), to_bytes(message))
 
+    def describe(self, channel, action):
+        irc.IRCClient.describe(self, to_bytes(channel), to_bytes(action))
+
     def setNick(self, nick):
         irc.IRCClient.setNick(self, to_bytes(nick))
 
