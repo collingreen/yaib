@@ -12,6 +12,10 @@ def dictToObject(d):
             self._d = d
             self._default = None
 
+        def __getitem__(self, *args, **kwargs):
+            return object.__getattribute__(self, '_d')\
+                    .__getitem__(*args, **kwargs)
+
         def __getattribute__(self, key, context=None):
             if key in [
                     'keys', 'iterkeys',
