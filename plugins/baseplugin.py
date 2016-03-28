@@ -38,7 +38,7 @@ class BasePlugin(object):
     def configure(self, configuration):
         """
         Overwrite this to handle configuration.
-        @param configuartion: (object) the entire yaib config file.
+        @param configuration: (object) the entire yaib config file.
         """
         pass
 
