@@ -77,9 +77,9 @@ class BasePlugin(object):
         sends a message back to the sender, otherwise sends to the channel.
         """
         return self.send(
-                channel if channel != self.nick else nick,
-                message
-            )
+            channel if channel != self.nick else nick,
+            message
+        )
 
     def action(self, channel, action):
         """Send an action in the given channel."""
@@ -88,7 +88,6 @@ class BasePlugin(object):
     def onPluginsLoaded(self):
         """Called when ALL the plugins are loaded."""
         pass
-
 
     def onNickChange(self, nick, old_nick):
         """Called when {nick}'s nick changes."""

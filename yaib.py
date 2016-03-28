@@ -10,23 +10,35 @@
     The official yaib channel is #yaib on irc.afternet.org.
 
     Yaib is built using Twisted:
-    http://twistedmatrix.com/documents/14.0.2/api/twisted.words.protocols.irc.IRCClient.html
+    http://twistedmatrix.com/documents/14.0.2/api/twisted.words.protocols.irc.IRCClient.html  # NOQA
 
 """
 
-import sys, os, time, imp, json, logging
+import sys
+import os
+import time
+import imp
+import json
+import logging
 from pubsub import pub
 
 from tools import util
 from modules import settings, connections, persistence
 from modules.admin.admin_manager import AdminManager
 
+CONFIG_FILE_PATH = 'config.json'
+PRIVATE_CONFIG_FILE_PATH = 'privateconfig.json'
+
 # add path to make importing plugins work
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+sys.path.insert(
+    0,
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+)
 
 
 # TODO: configure from command line or config.json
 logging.basicConfig(level=logging.DEBUG)
+
 
 class Yaib(object):
     def __init__(self, *args, **kwargs):
@@ -39,22 +51,25 @@ class Yaib(object):
         self.DONT_NOTIFY_PLUGINS_FLAG = '**does_not_notify_plugins**'
 
         # load configuration
-        configFile = 'config.json'
         try:
-            f = open(configFile)
-        except: # TODO: Catch the real exceptions here
+            f = open(CONFIG_FILE_PATH)
+        except:  # TODO: Catch the real exceptions here
             logging.error(
-                "Could not open configuration file %s. Quitting." % configFile
+                "Could not open configuration file {}. Quitting.".format(
+                    CONFIG_FILE_PATH
+                )
             )
             sys.exit(1)
 
         try:
             self.config = util.dictToObject(json.loads(f.read()))
-            logging.info("Loaded configuration from %s" % configFile)
-        except ValueError, e:
+            logging.info("Loaded configuration from %s" % CONFIG_FILE_PATH)
+        except ValueError as e:
             logging.error(
-                "Could not load configuration file %s. Exiting. %s" %
-                    (configFile, repr(e))
+                "Could not load configuration file {}. Exiting. {}".format(
+                    CONFIG_FILE_PATH,
+                    repr(e)
+                )
             )
             sys.exit(1)
 
@@ -65,9 +80,10 @@ class Yaib(object):
             self.settings.loadSettings()
         else:
             logging.error(
-                "Unsupported settings module %s. Exiting." %
+                "Unsupported settings module {}. Exiting.".format(
                     self.config.settings.module
                 )
+            )
             sys.exit(1)
 
         # load admin module based on configuration
@@ -125,23 +141,26 @@ class Yaib(object):
         # create a connection
         connection = connections.irc
         self.connection_factory = connection.connectToServer(
-                self.config.connection,
-                self
-            )
+            self.config.connection,
+            self
+        )
         connection.start()
 
     def createDefaultSettings(self):
         """Ensure the default settings exist from the config file."""
         # TODO: just load everything from config without explicitly listing
-        default_channels = [c.strip() for c in
-                self.config.default_channels.split(',')]
+        default_channels = [
+            c.strip() for c in
+            self.config.default_channels.split(',')
+        ]
+
         self.settings.setMulti({
             'nick': self.config.nick,
             'default_channels': default_channels,
 
             'connection.command_prefix': self.config.connection.command_prefix,
-            'connection.keepalive_delay': \
-                    self.config.connection.keepalive_delay,
+            'connection.keepalive_delay':
+                self.config.connection.keepalive_delay,
             'connection.max_flood': self.config.connection.max_flood,
             'connection.flood_interval': self.config.connection.flood_interval,
             'connection.flood_wait': self.config.connection.flood_wait,
@@ -177,8 +196,8 @@ class Yaib(object):
 
             # if found plugin in folder
             plugin_file_path = os.path.join(
-                    self.config.plugins.root, path, "%s.py" % path
-                )
+                self.config.plugins.root, path, "%s.py" % path
+            )
             if os.path.isfile(plugin_file_path):
                 try:
                     # try to import it
@@ -190,7 +209,7 @@ class Yaib(object):
                     logging.debug("Imported plugin module %s" % path)
 
                 # TODO: change to only catch import errors here
-                except Exception, e:
+                except Exception as e:
                     logging.error(
                         "Error importing plugin %s: %s" % (path, repr(e))
                     )
@@ -200,13 +219,13 @@ class Yaib(object):
                     try:
                         logging.debug("Creating plugin")
                         plugin = plugin_module.Plugin(
-                                self,
-                                self.config
-                            )
+                            self,
+                            self.config
+                        )
                         logging.debug("Loaded plugin %s" % plugin.name)
 
                     # loading external code - catch all exceptions
-                    except Exception, e:
+                    except Exception as e:
                         logging.error("Error loading plugin %s: %s" % (
                             plugin_file_path, repr(e))
                         )
@@ -227,6 +246,7 @@ class Yaib(object):
         """Create a wrapper around the settings object that namespaces
         the getters and setters based on the plugin name."""
         yaibSettings = self.settings
+
         class SettingsWrapper(object):
             def getKey(self, key):
                 return '%s.%s' % (pluginName, key)
@@ -236,7 +256,7 @@ class Yaib(object):
 
             def setMulti(self, settingsDict, initial=False):
                 settingsDict = dict([
-                    (self.getKey(k), v) for k,v in settingsDict.items()
+                    (self.getKey(k), v) for k, v in settingsDict.items()
                 ])
                 return yaibSettings.setMulti(settingsDict, initial=initial)
 
@@ -253,10 +273,15 @@ class Yaib(object):
             if hasattr(p, command):
                 try:
                     getattr(p, command)(*args, **kwargs)
-                except Exception, e: # running plugin command - catch everything
-                    logging.error("Exception running %s in plugin %s: %s" %
-                            (command, p.name, repr(e))
+                # running plugin command - catch everything
+                except Exception as e:
+                    logging.error(
+                        "Exception running {} in plugin {}: {}".format(
+                            command,
+                            p.name,
+                            repr(e)
                         )
+                    )
 
     def formatDoc(self, message):
         """
@@ -264,9 +289,9 @@ class Yaib(object):
         with their current values and stripping any control flags."""
         doc = message.replace(self.DONT_NOTIFY_PLUGINS_FLAG, '')
         return doc.format(
-                nick=self.nick,
-                command_prefix=self.command_prefix
-            )
+            nick=self.nick,
+            command_prefix=self.command_prefix
+        )
 
     def callLater(self, delay, func, *args, **kwargs):
         """Wait for the given delay then call the function with the args."""
@@ -317,8 +342,8 @@ class Yaib(object):
         # remove nick from front
         processed = message[len(self.nick):]
         processed = processed.lstrip(
-                self.settings.get('nick_command_delimiters')
-            )
+            self.settings.get('nick_command_delimiters')
+        )
 
         # split it into command name and the arguments
         command, x, more = processed.partition(' ')
@@ -331,7 +356,14 @@ class Yaib(object):
             )
 
     def onMessage(self, user, nick, channel, message, highlight):
-        self.callInPlugins('onMessage', user, nick, channel, message, highlight)
+        self.callInPlugins(
+            'onMessage',
+            user,
+            nick,
+            channel,
+            message,
+            highlight
+        )
 
     def onCommand(self, user, nick, channel, command, more):
         found = self.findAndCall(command, user, nick, channel, more)
@@ -348,7 +380,7 @@ class Yaib(object):
         searchables = [self] + self.plugins
         for searchable in searchables:
             func, is_admin_command = \
-                    self.findCommand(searchable, user, nick, channel, command)
+                self.findCommand(searchable, user, nick, channel, command)
 
             # found it, execute it
             if func:
@@ -448,7 +480,7 @@ class Yaib(object):
         return False
 
 
-## IRC Commands
+# IRC Commands
 
     def onJoined(self, channel):
         logging.info("Joined %s" % channel)
@@ -529,4 +561,3 @@ class Yaib(object):
 if __name__ == '__main__':
     yaib = Yaib()
     yaib.start()
-

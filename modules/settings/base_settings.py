@@ -88,7 +88,7 @@ class BaseSettings(object):
         """
 
         count = len(settingsDict)
-        for k,v in settingsDict.iteritems():
+        for k, v in settingsDict.iteritems():
             count -= 1
             self.set(k, v, initial, more=count > 0)
 

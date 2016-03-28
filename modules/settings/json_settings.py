@@ -45,7 +45,7 @@ class JsonSettings(BaseSettings):
             with open(self.settings_file, 'wb') as f:
                 f.write(json.dumps(self._settings))
             return True
-        except Exception, e:
+        except Exception as e:
             logging.error("Exception while saving settings: %s" % repr(e))
 
         super(JsonSettings, self).saveSettings()
@@ -61,15 +61,17 @@ class JsonSettings(BaseSettings):
         except IOError:
             # TODO
             pass
-        except ValueError, TypeError:
+        except ValueError:
             logging.error("Invalid settings file. Starting a new one.")
             # TODO: create duplicate of old settings before using new
-        except Exception, e:
+        except TypeError:
+            logging.error("Invalid settings file. Starting a new one.")
+            # TODO: create duplicate of old settings before using new
+        except Exception as e:
             logging.error(
                 "Unknown error while loading settings file: %s" % repr(e)
-                )
+            )
             # TODO: create duplicate of old settings before using new
 
         super(JsonSettings, self).loadSettings()
         return success
-

@@ -38,9 +38,9 @@ class Plugin(BasePlugin):
         """
         with self.getDbSession() as db_session:
             contrived_example = Thing(
-                    name='hello world',
-                    count=99
-                )
+                name='hello world',
+                count=99
+            )
             db_session.add(contrived_example)
 
     def command_whois(self, user, nick, channel, rest):
@@ -53,10 +53,12 @@ class Plugin(BasePlugin):
             self.reply(channel, nick, '%s: who is who?' % nick)
             return False
 
-        try: target_nick = rest.split(' ')[0]
-        except: target_nick = rest
+        try:
+            target_nick = rest.split(' ')[0]
+        except:
+            target_nick = rest
 
-        self.whois_channel= channel if channel != self.nick else nick
+        self.whois_channel = channel if channel != self.nick else nick
         self.whois_result = {'nick': target_nick}
         self.yaib.server_connection.whois(target_nick)
 
@@ -101,4 +103,3 @@ class Plugin(BasePlugin):
     def sendAfterWait(self, channel, message, notused=None, other=''):
         """echo_wait command calls this after a delay"""
         self.send(channel, message + ' ' + other)
-

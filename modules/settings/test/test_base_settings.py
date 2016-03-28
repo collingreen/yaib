@@ -1,5 +1,4 @@
 from ..base_settings import BaseSettings
-from nose import with_setup
 
 
 class TestBaseSettings(object):
@@ -14,7 +13,7 @@ class TestBaseSettings(object):
 
     def test_doesnt_exist(self):
         """Test getting a key that doesn't exists."""
-        assert(self.settings.get('notathing') == None)
+        assert(self.settings.get('notathing') is None)
 
     def test_doesnt_exist_with_default(self):
         """Test getting a key that doesn't exists with default."""
@@ -45,9 +44,9 @@ class TestBaseSettings(object):
         assert(self.settings.get('nested.thing') == 'yeah')
         assert(self.settings.get('nested.otherthing') == 'what')
         assert(
-                self.settings.get('nested') == \
-                    {'thing': 'yeah', 'otherthing': 'what'}
-            )
+            self.settings.get('nested') ==
+            {'thing': 'yeah', 'otherthing': 'what'}
+        )
 
     def test_setting_dict(self):
         """Test setting a tree of keys using a dictionary."""
@@ -63,25 +62,25 @@ class TestBaseSettings(object):
     def test_get_multi(self):
         """Test getting multiple keys at once."""
         self.settings.setMulti({'a': 'A', 'b': 'B'})
-        multi = self.settings.getMulti(['a','b'])
+        multi = self.settings.getMulti(['a', 'b'])
         assert(multi['a'] == 'A')
         assert(multi['b'] == 'B')
 
     def test_get_multi_doesnt_exist(self):
         """Test getting multiple keys, some of which don't exist."""
         self.settings.setMulti({'a': 'A', 'b': 'B'})
-        multi = self.settings.getMulti(['a','b','c'])
+        multi = self.settings.getMulti(['a', 'b', 'c'])
         assert(multi['c'] is None)
 
     def test_get_multi_doesnt_exist_default(self):
         """Test getting multiple keys, some of which don't exist."""
         self.settings.setMulti({'a': 'A', 'b': 'B'})
-        multi = self.settings.getMulti(['a','b','c'], default='default')
+        multi = self.settings.getMulti(['a', 'b', 'c'], default='default')
         assert(multi['c'] == 'default')
 
     def test_lists(self):
         """Test setting lists."""
-        test_list = ['a','b','c']
+        test_list = ['a', 'b', 'c']
         self.settings.set('list', test_list)
         test_list2 = self.settings.get('list')
         assert(test_list == test_list2)

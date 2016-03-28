@@ -49,10 +49,10 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
             # if we are flooded, queue this send
             if time.time() - flood_time < flood_interval:
                 reactor.callLater(
-                        flood_wait,
-                        self.sendMessage,
-                        *[channel, message]
-                    )
+                    flood_wait,
+                    self.sendMessage,
+                    *[channel, message]
+                )
                 return False
 
         # add it to our messages log
@@ -83,8 +83,8 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
             time_since_last_message = time.time() - self.messages[0]
 
         keep_alive = self.factory.yaib.settings.get(
-                'connection.keepalive_delay'
-            )
+            'connection.keepalive_delay'
+        )
         delay = keep_alive
 
         # if we haven't sent a message recently, do it now
@@ -180,62 +180,62 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 
     def action(self, user, channel, action):
         self.publish(
-                'userAction',
-                user=user,
-                nick=self.getNickFromUser(user),
-                channel=channel,
-                action=action
-            )
+            'userAction',
+            user=user,
+            nick=self.getNickFromUser(user),
+            channel=channel,
+            action=action
+        )
 
     def noticed(self, user, channel, message):
         self.publish(
-                'notification',
-                user=user,
-                nick=self.getNickFromUser(user),
-                channel=channel,
-                message=message
-            )
+            'notification',
+            user=user,
+            nick=self.getNickFromUser(user),
+            channel=channel,
+            message=message
+        )
 
     def privateMessage(self, user, nick, message):
         # notify yaib
         self.publish(
-                'privateMessage',
-                user=user,
-                nick=nick,
-                message=message
-            )
+            'privateMessage',
+            user=user,
+            nick=nick,
+            message=message
+        )
 
     def directMessage(self, user, nick, channel, message):
         self.publish(
-                'directMessage',
-                user=user,
-                nick=nick,
-                channel=channel,
-                message=message
-            )
+            'directMessage',
+            user=user,
+            nick=nick,
+            channel=channel,
+            message=message
+        )
 
     def command(self, user, nick, channel, command, more):
         """Called when a user appears to issue a command."""
         self.publish(
-                'command',
-                user=user,
-                nick=nick,
-                channel=channel,
-                command=command,
-                more=more
-            )
+            'command',
+            user=user,
+            nick=nick,
+            channel=channel,
+            command=command,
+            more=more
+        )
 
     def message(self, user, nick, channel, message, highlight=False):
         """Called with every normal message said in each channel to
         which yaib is connected (not actions, commands, or PMs)."""
         self.publish(
-                'message',
-                user=user,
-                nick=nick,
-                channel=channel,
-                message=message,
-                highlight=highlight
-            )
+            'message',
+            user=user,
+            nick=nick,
+            channel=channel,
+            message=message,
+            highlight=highlight
+        )
 
     # all incoming text goes through this poorly named function
     def privmsg(self, user, channel, message):
@@ -282,20 +282,21 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
         self.publish('left', channel=channel)
 
     def kickedFrom(self, channel, kicker, kicker_user, message):
-        self.publish('kicked',
-                kicker_user=kicker_user,
-                kicker=kicker,
-                channel=channel,
-                message=message
-            )
+        self.publish(
+            'kicked',
+            kicker_user=kicker_user,
+            kicker=kicker,
+            channel=channel,
+            message=message
+        )
 
     def userJoined(self, user, nick, channel):
         self.publish(
-                'userJoined',
-                user=user,
-                nick=nick,
-                channel=channel
-            )
+            'userJoined',
+            user=user,
+            nick=nick,
+            channel=channel
+        )
 
     # overwrite default irc_JOIN in order to send user
     def irc_JOIN(self, prefix, params):
@@ -312,11 +313,11 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 
     def userLeft(self, user, nick, channel):
         self.publish(
-                'userLeft',
-                user=user,
-                nick=nick,
-                channel=channel
-            )
+            'userLeft',
+            user=user,
+            nick=nick,
+            channel=channel
+        )
 
     # overwrite default irc_PART in order to send user
     def irc_PART(self, prefix, params):
@@ -333,11 +334,11 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 
     def userQuit(self, user, nick, quitMessage):
         self.publish(
-                'userQuit',
-                user=user,
-                nick=nick,
-                quitMessage=quitMessage
-            )
+            'userQuit',
+            user=user,
+            nick=nick,
+            quitMessage=quitMessage
+        )
 
     def irc_QUIT(self, prefix, params):
         """
@@ -368,21 +369,21 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 
     def userKicked(self, kickee, channel, kicker_user, kicker, message):
         self.publish(
-                'userKicked',
-                kickee=kickee,
-                channel=channel,
-                kicker_user=kicker_user,
-                kicker=kicker,
-                message=message
-            )
+            'userKicked',
+            kickee=kickee,
+            channel=channel,
+            kicker_user=kicker_user,
+            kicker=kicker,
+            message=message
+        )
 
     def userRenamed(self, user, old_nick, new_nick):
         self.publish(
-                'userRenamed',
-                user=user,
-                old_nick=old_nick,
-                new_nick=new_nick
-            )
+            'userRenamed',
+            user=user,
+            old_nick=old_nick,
+            new_nick=new_nick
+        )
 
     # overwrite default irc_NICK in order to send user
     def irc_NICK(self, prefix, params):
@@ -405,12 +406,12 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
     def topicUpdated(self, user, channel, newTopic):
         nick = self.getNickFromUser(user)
         self.publish(
-                'topicChanged',
-                user=user,
-                nick=nick,
-                channel=channel,
-                topic=newTopic
-            )
+            'topicChanged',
+            user=user,
+            nick=nick,
+            channel=channel,
+            topic=newTopic
+        )
 
     def irc_ERR_NOSUCHNICK(self, *args):
         pass
@@ -418,22 +419,22 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
     def irc_RPL_NAMREPLY(self, server, info):
         my_name, channel_type, channel_name, user_list = info
         self.publish(
-                'userList',
-                channel_type=channel_type,
-                channel=channel_name,
-                user_list=user_list
-            )
+            'userList',
+            channel_type=channel_type,
+            channel=channel_name,
+            user_list=user_list
+        )
 
     def irc_RPL_ENDOFNAMES(self, *args):
         pass
 
     def irc_unknown(self, prefix, command, params):
         self.publish(
-                'IRCUnknown',
-                prefix=prefix,
-                command=command,
-                params=params
-            )
+            'IRCUnknown',
+            prefix=prefix,
+            command=command,
+            params=params
+        )
 
     def ping(self, nick, answer_channel=None):
         self._ping_channel = answer_channel
@@ -443,12 +444,12 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
         nick = self.getNickFromUser(user)
         if self._ping_channel:
             self.publish(
-                    'pong',
-                    user=user,
-                    nick=nick,
-                    channel=self._ping_channel,
-                    seconds=seconds
-                )
+                'pong',
+                user=user,
+                nick=nick,
+                channel=self._ping_channel,
+                seconds=seconds
+            )
             self._ping_channel = None
 
 

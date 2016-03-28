@@ -1,3 +1,5 @@
+import logging
+
 from contextlib import contextmanager
 from pubsub import pub
 
@@ -46,7 +48,9 @@ class SqlAlchemyPersistence(object):
         """Called on init with the bot configuration."""
 
         # require persistence and persistence.connection
-        if (configuration.persistence is None or configuration.persistence.connection is None):
+        if (
+                configuration.persistence is None
+                or configuration.persistence.connection is None):
             logging.error(
                 "Error - could not configure persistence layer."
             )
@@ -54,9 +58,9 @@ class SqlAlchemyPersistence(object):
 
         # an Engine, which the Session will use for connection resources
         self.db_engine = create_engine(
-                configuration.persistence.connection,
-                echo=configuration.persistence.logging
-            )
+            configuration.persistence.connection,
+            echo=configuration.persistence.logging
+        )
 
         # create a configured "Session" class
         self.session_class = sessionmaker(bind=self.db_engine)
@@ -98,6 +102,7 @@ def getModelBase(prefix=''):
     help prevent name collisions."""
     class CustomBase(object):
         id = Column(Integer, primary_key=True)
+
         @declared_attr
         def __tablename__(cls):
             return ('%s_%s' % (prefix, cls.__name__)).lower()

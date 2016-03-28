@@ -1,5 +1,4 @@
 import time
-import logging
 from plugins.baseplugin import BasePlugin
 
 
@@ -88,7 +87,7 @@ class Plugin(BasePlugin):
             return self.send(
                 nick,
                 self.formatDoc(
-                   "Usage: {command_prefix}set_setting key value"
+                    "Usage: {command_prefix}set_setting key value"
                 )
             )
         self.yaib.settings.set(split[0], split[1], ' '.join(split[2:]))
@@ -120,12 +119,16 @@ class Plugin(BasePlugin):
                     self.reply(channel, nick, "Reloaded plugin %s" % more)
                     return
             # loading external code - catching all exceptions is ok
-            except Exception, e:
+            except Exception as e:
                 self.reply(channel, nick, "Failed to reload plugin %s" % more)
 
         # if we didnt find the specified plugin, just reload them all
         self.yaib.loadPlugins()
-        self.reply(channel, nick, "%d plugins reloaded" % len(self.yaib.plugins))
+        self.reply(
+            channel,
+            nick,
+            "%d plugins reloaded" % len(self.yaib.plugins)
+        )
 
     def admin_do(self, user, nick, channel, more):
         """Makes {nick} do an action."""
@@ -159,21 +162,19 @@ class Plugin(BasePlugin):
         """Makes {nick} change nick - Usage: {command_prefix}nick new_nick"""
         self.yaib.setNick(more.strip())
 
-
-
     def admin_shutup(self, user, nick, channel, more):
         """
         Makes {nick} shut up for a while. Can
         pass a number of seconds to shutup to
         override the default.
         """
-        target = channel if channel == self.nick else nick
-
         duration = None
         if more:
             try:
                 duration = int(more)
-            except ValueError, TypeError:
+            except ValueError:
+                pass
+            except TypeError:
                 pass
         return self._shutup(duration)
 
@@ -188,11 +189,19 @@ class Plugin(BasePlugin):
 
     def command_plugins(self, user, nick, channel, more):
         """Lists the loaded plugins"""
-        self.reply(channel, nick, ', '.join([p.name for p in self.yaib.plugins]))
+        self.reply(
+            channel,
+            nick,
+            ', '.join([
+                p.name
+                for p in self.yaib.plugins
+            ])
+        )
 
     def command_info(self, user, nick, channel, more):
         """Get some basic info about {nick}."""
-        self.reply(channel, nick, self.formatDoc(self.settings.get('yaib_info')))
+        self.reply(
+            channel, nick, self.formatDoc(self.settings.get('yaib_info')))
 
     # TODO: make this less ugly
     def command_help(self, user, nick, channel, more):
@@ -201,14 +210,14 @@ class Plugin(BasePlugin):
         # if more == '', show main help menu
         if more == '':
             content = self.formatDoc(
-                "The following help categories are available. " + \
-                "Select a category with '{command_prefix}help category'.\n" + \
+                "The following help categories are available. " +
+                "Select a category with '{command_prefix}help category'.\n" +
                 "--------------------------------\n"
             )
 
             content += ', '.join(
-                    [self.nick] + [p.name for p in self.yaib.plugins]
-                )
+                [self.nick] + [p.name for p in self.yaib.plugins]
+            )
 
             for line in content.split("\n"):
                 self.send(nick, line)
@@ -232,8 +241,8 @@ class Plugin(BasePlugin):
                 "Commands can be issued with a '{command_prefix}' or by " +
                 "starting with '{nick}'. Example: '{command_prefix}help' " +
                 "or '{nick}: help'.\n" +
-                "The following commands are available in the category '%s'\n"
-                    % more
+                "The following commands are available in the category" +
+                "'%s'\n".format(more)
             )
 
             is_admin = self.yaib.isAdmin(user, nick)
@@ -279,7 +288,6 @@ class Plugin(BasePlugin):
         # need to know about the connection
         self.yaib.server_connection.ping(nick, channel)
 
-
     # TODO: move to op plugin?
     # TODO: verify permission
     def admin_topic(self, user, nick, channel, more):
@@ -322,11 +330,11 @@ class Plugin(BasePlugin):
         else:
             if len(params) < 1:
                 return self.send(
-                        channel,
-                        self.formatDoc(
-                            "Usage: {command_prefix}kick target channel [reason]"
-                        )
+                    channel,
+                    self.formatDoc(
+                        "Usage: {command_prefix}kick target channel [reason]"
                     )
+                )
             target = params[0]
             if len(params) > 1:
                 reason = ' '.join(params[1:])
