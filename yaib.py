@@ -145,10 +145,13 @@ class Yaib(object):
     def createDefaultSettings(self):
         """Ensure the default settings exist from the config file."""
         # TODO: just load everything from config without explicitly listing
-        default_channels = [
-            c.strip() for c in
-            self.config.default_channels.split(',')
-        ]
+        if isinstance(self.config.default_channels, list):
+            default_channels = self.config.default_channels
+        else:
+            default_channels = [
+                c.strip() for c in
+                self.config.default_channels.split(',')
+            ]
 
         self.settings.setMulti({
             'nick': self.config.nick,
