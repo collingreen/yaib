@@ -333,7 +333,7 @@ class Yaib(object):
         # remove nick from front
         processed = message[len(self.nick):]
         processed = processed.lstrip(
-            self.settings.get('nick_command_delimiters')
+            self.config.connection.nick_command_delimiters
         )
 
         # split it into command name and the arguments
