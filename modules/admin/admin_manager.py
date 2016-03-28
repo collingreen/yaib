@@ -77,7 +77,7 @@ class AdminManager(object):
         if self._admin_type not in self.SUPPORTED_TYPES:
             logging.warning(
                 "Admin configuration error - unsupported type %s" %
-                    self._admin_type
+                self._admin_type
             )
             return
 
@@ -93,15 +93,15 @@ class AdminManager(object):
         elif self._admin_type == 'simple':
             if configuration.admin.admins is None:
                 logging.warning(
-                        "Admin configuration error - empty admins dict"
-                    )
+                    "Admin configuration error - empty admins dict"
+                )
                 return
 
             admins = self._processSimpleAdmins(configuration.admin.admins)
             if admins is None:
                 logging.warning(
-                        "Admin configuration error - invalid admins dict"
-                    )
+                    "Admin configuration error - invalid admins dict"
+                )
                 return
             self._admins = admins
             logging.info(
@@ -114,11 +114,12 @@ class AdminManager(object):
         if configuration.admin.admin_timeout:
             self._admin_timeout = configuration.admin.admin_timeout
 
+        logging.info("Admin configured")
         self._admin_enabled = True
         pub.sendMessage('admin:initialized')
 
     def _processSimpleAdmins(self, raw_admins):
-        """Accepts the configuation of admins and validates it. Returns a
+        """Accepts the configuration of admins and validates it. Returns a
         correctly formatted dict of admins."""
         admins = {}
         if not raw_admins:
@@ -127,27 +128,29 @@ class AdminManager(object):
         for nick, password in raw_admins.iteritems():
             if password not in ['', None]:
                 admins[nick] = {
-                        '_password': password,
-                        'user': None,
-                        'expiration': 0
-                    }
+                    '_password': password,
+                    'user': None,
+                    'expiration': 0
+                }
         return admins
 
     def onAdminCommand(self, user, nick, channel, command, more):
         """Called when a user issues an admin command. Resets
         the expiration time for their admin session."""
         if nick in self._admins:
-            self._admins[nick]['expiration'] = time.time() + self._admin_timeout
+            self._admins[nick]['expiration'] = \
+                time.time() + self._admin_timeout
 
     def isAdmin(self, user, nick):
         """Returns True if the user is currently in a valid admin session."""
         return (
             self._admin_enabled and
-            (self._admin_type == 'test' or
+            (
+                self._admin_type == 'test' or
                 (
-                nick in self._admins.keys() and
-                self._admins[nick]['user'] == user and
-                self._admins[nick]['expiration'] > time.time()
+                    nick in self._admins.keys() and
+                    self._admins[nick]['user'] == user and
+                    self._admins[nick]['expiration'] > time.time()
                 )
             )
         )
@@ -177,10 +180,11 @@ class AdminManager(object):
         self._admins[nick]['expiration'] = time.time() + self._admin_timeout
 
     def listAdmins(self):
-        return [nick
-                    for nick, info in self._admins.iteritems()
-                    if info['expiration'] > time.time()
-                ]
+        return [
+            nick
+            for nick, info in self._admins.iteritems()
+            if info['expiration'] > time.time()
+        ]
 
     def clearAdmin(self, nick):
         if nick in self._admins.keys():
