@@ -73,6 +73,10 @@ class Yaib(object):
             )
             sys.exit(1)
 
+        # get required fields from config
+        self.command_prefix = self.config.connection.command_prefix
+        self.nick = self.config.nick
+
         # load settings module based on configuration
         # TODO: move this config check to settings module itself
         if self.config.settings.module == 'json':
@@ -102,10 +106,6 @@ class Yaib(object):
         self.loadPlugins()
 
     def subscribeToEvents(self):
-        # subscribe to events from the default modules
-        pub.subscribe(self.onSettingsUpdated, 'settings:updated')
-        pub.subscribe(self.onSettingsUpdated, 'settings:loaded')
-
         # subscribe to events from the server connections
         pub.subscribe(self.onConnected, 'connection:connected')
         pub.subscribe(self.onMessageOfTheDay, 'connection:messageOfTheDay')
@@ -130,10 +130,6 @@ class Yaib(object):
         pub.subscribe(self.onPong, 'connection:pong')
         pub.subscribe(self.onIRCUnknown, 'connection:IRCUnknown')
 
-    def onSettingsUpdated(self):
-        # set command prefix
-        self.command_prefix = self.settings.get('connection.command_prefix')
-
     def start(self):
         """
         Called after initialization. Connects to the servers in the settings.
@@ -142,7 +138,7 @@ class Yaib(object):
         connection = connections.irc
         self.connection_factory = connection.connectToServer(
             self.config.connection,
-            self
+            self.nick
         )
         connection.start()
 
@@ -157,14 +153,6 @@ class Yaib(object):
         self.settings.setMulti({
             'nick': self.config.nick,
             'default_channels': default_channels,
-
-            'connection.command_prefix': self.config.connection.command_prefix,
-            'connection.keepalive_delay':
-                self.config.connection.keepalive_delay,
-            'connection.max_flood': self.config.connection.max_flood,
-            'connection.flood_interval': self.config.connection.flood_interval,
-            'connection.flood_wait': self.config.connection.flood_wait,
-
             'shutup_duration': 30
             },
             initial=True

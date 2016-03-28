@@ -16,9 +16,18 @@ from kitchen.text.converters import to_bytes
 from pubsub import pub
 
 
-def connectToServer(config, yaib):
-    factory = IRCFactory(config.host, config.port, yaib)
-    reactor.connectTCP(config.host, config.port, factory)
+def connectToServer(connection_config, nick):
+    factory = IRCFactory(
+        connection_config.host,
+        connection_config.port,
+        nick,
+        connection_config.command_prefix,
+        connection_config.max_flood,
+        connection_config.flood_interval,
+        connection_config.flood_wait,
+        connection_config.keepalive_delay
+    )
+    reactor.connectTCP(connection_config.host, connection_config.port, factory)
     return factory
 
 
@@ -38,18 +47,13 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
         """
 
         # check time of max_flood messages ago
-        settings = self.factory.getSettings()
-        max_flood = settings.get('connection.max_flood')
-        flood_interval = settings.get('connection.flood_interval')
-        flood_wait = settings.get('connection.flood_wait')
-
-        if len(self.messages) >= max_flood:
+        if len(self.messages) >= self.factory.max_flood:
             flood_time = self.messages[-1]
 
             # if we are flooded, queue this send
-            if time.time() - flood_time < flood_interval:
+            if time.time() - flood_time < self.factory.flood_interval:
                 reactor.callLater(
-                    flood_wait,
+                    self.factory.flood_wait,
                     self.sendMessage,
                     *[channel, message]
                 )
@@ -57,7 +61,7 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 
         # add it to our messages log
         self.messages.insert(0, time.time())
-        self.messages = self.messages[:max_flood]
+        self.messages = self.messages[:self.factory.max_flood]
 
         self.msg(to_bytes(channel), to_bytes(message))
 
@@ -82,13 +86,10 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
         if len(self.messages) > 0:
             time_since_last_message = time.time() - self.messages[0]
 
-        keep_alive = self.factory.yaib.settings.get(
-            'connection.keepalive_delay'
-        )
-        delay = keep_alive
+        delay = self.factory.keepalive_delay
 
         # if we haven't sent a message recently, do it now
-        if time_since_last_message >= keep_alive:
+        if time_since_last_message >= self.factory.keepalive_delay:
             self.ping(to_bytes(self.factory.host))
             self.messages.insert(0, time.time())
 
@@ -247,7 +248,7 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
         nick, x, nick_host = user.partition('!')
 
         # private message
-        if channel == self.factory.yaib.nick:
+        if channel == self.nickname:
             self.privateMessage(user, nick, message)
 
         # not private message
@@ -270,7 +271,7 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 
             else:
                 # just a regular message
-                if message.find(self.factory.yaib.nick) >= 0:
+                if message.find(self.factory.nick) >= 0:
                     self.message(user, nick, channel, message, True)
                 else:
                     self.message(user, nick, channel, message, False)
@@ -456,24 +457,25 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 class IRCFactory(protocol.ReconnectingClientFactory):
     protocol = YaibTwistedIRCProtocol
 
-    def __init__(self, host, port, yaib, *args, **kwargs):
+    def __init__(
+            self, host, port, nick, command_prefix,
+            max_flood, flood_interval, flood_wait, keepalive_delay,
+            *args, **kwargs):
         # protocol.ReconnectingClientFactory.__init__(self, *args, **kwargs)
 
-        # store a reference to yaib and server info
-        self.yaib = yaib
+        # store settings
         self.host = host
         self.port = port
+        self.nick = nick
+        self.command_prefix = command_prefix
+        self.max_flood = max_flood
+        self.flood_interval = flood_interval
+        self.flood_wait = flood_wait
+        self.keepalive_delay = keepalive_delay
 
     @property
     def command_prefix(self):
-        return self.yaib.command_prefix
-
-    def getSettings(self):
-        return self.yaib.settings.getMulti([
-            'connection.max_flood',
-            'connection.flood_interval',
-            'connection.flood_wait'
-        ])
+        return self.command_prefix
 
     def publish(self, eventName, *args, **kwargs):
         pub.sendMessage('connection:%s' % eventName, **kwargs)
