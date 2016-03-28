@@ -27,7 +27,7 @@ from modules import settings, connections, persistence
 from modules.admin.admin_manager import AdminManager
 
 CONFIG_FILE_PATH = 'config.json'
-PRIVATE_CONFIG_FILE_PATH = 'privateconfig.json'
+PRIVATE_CONFIG_FILE_PATH = 'private_config.json'
 
 # add path to make importing plugins work
 sys.path.insert(
@@ -52,7 +52,8 @@ class Yaib(object):
 
         # load configuration
         try:
-            f = open(CONFIG_FILE_PATH)
+            with open(CONFIG_FILE_PATH, 'r') as f:
+                config_content = f.read()
         except:  # TODO: Catch the real exceptions here
             logging.error(
                 "Could not open configuration file {}. Quitting.".format(
@@ -61,8 +62,9 @@ class Yaib(object):
             )
             sys.exit(1)
 
+        config = {}
         try:
-            self.config = util.dictToObject(json.loads(f.read()))
+            config = json.loads(config_content)
             logging.info("Loaded configuration from %s" % CONFIG_FILE_PATH)
         except ValueError as e:
             logging.error(
@@ -72,6 +74,33 @@ class Yaib(object):
                 )
             )
             sys.exit(1)
+
+        # try loading private config file
+        private_config_content = ''
+        try:
+            with open(PRIVATE_CONFIG_FILE_PATH, 'r') as private_config_file:
+                private_config_content = private_config_file.read()
+        except:  # TODO: catch real exceptions
+            logging.warning("Could not open private config file {}.".format(
+                PRIVATE_CONFIG_FILE_PATH
+            ))
+
+        private_config = {}
+        try:
+            private_config = json.loads(private_config_content)
+            logging.info(
+                "Loaded private configuration from %s" % CONFIG_FILE_PATH)
+        except ValueError as e:
+            logging.error(
+                'Could not parse private config file {}.'.format(
+                    PRIVATE_CONFIG_FILE_PATH,
+                )
+            )
+
+        # merge private and public config and convert to object
+        config.update(private_config)
+
+        self.config = util.dictToObject(config)
 
         # get required fields from config
         self.command_prefix = self.config.connection.command_prefix
