@@ -241,8 +241,8 @@ class Plugin(BasePlugin):
                 "Commands can be issued with a '{command_prefix}' or by " +
                 "starting with '{nick}'. Example: '{command_prefix}help' " +
                 "or '{nick}: help'.\n" +
-                "The following commands are available in the category" +
-                "'%s'\n".format(more)
+                "The following commands are available in the category " +
+                "'{}'\n".format(more)
             )
 
             is_admin = self.yaib.isAdmin(user, nick)
