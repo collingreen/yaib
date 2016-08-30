@@ -143,6 +143,19 @@ class Plugin(BasePlugin):
 
         self.action(channel, action)
 
+    def admin_say(self, user, nick, channel, more):
+        """Makes {nick} say some text."""
+
+        # if channel is our nick, this is a PM
+        if channel == self.nick:
+            channel, message = more.strip().split(' ', 1)
+
+        # command in the channel
+        else:
+            message = more
+
+        self.send(channel, message)
+
     def admin_quit(self, user, nick, channel, more):
         """Makes {nick} disconnect from the server"""
         self.yaib.quit()
