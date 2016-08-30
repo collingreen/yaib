@@ -89,7 +89,10 @@ class Yaib(object):
         try:
             private_config = json.loads(private_config_content)
             logging.info(
-                "Loaded private configuration from %s" % CONFIG_FILE_PATH)
+                'Loaded private configuration from {}'.format(
+                    PRIVATE_CONFIG_FILE_PATH
+                )
+            )
         except ValueError as e:
             logging.error(
                 'Could not parse private config file {}.'.format(
