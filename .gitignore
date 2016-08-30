@@ -1,7 +1,7 @@
 # yaib
 yaib.db
 settings.json
-config.json
+private_config.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

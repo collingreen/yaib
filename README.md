@@ -41,15 +41,17 @@ pip install -r requirements.txt --allow-external PyPubSub
 ~~~
 
 
-Yaib ships with an example config file, but will not function until you
-create a `config.json` file with your real configuration. In particular,
-you will probably want to change the server Yaib connects to, her nick,
-and the default channels to which she should connect.
+Most of Yaib's functionality is initially set up in `config.json`, which you
+will need to open and customize. In particular, you will probably want to change
+the server Yaib connects to, her nick, and the default channels to which she
+should connect.
 
-~~~
-cp config-example.json config.json
-~~~
 -- edit your config.json as necessary --
+
+You can also split your configuration into two files, config.json and
+private_config.json, which allows you to keep public configuration like plugin
+settings in version control while keeping database and admin passwords in
+private_config.json, which is listed in .gitignore.
 
 Now that Yaib is fully configured, you can start her up!
 ~~~

@@ -27,7 +27,7 @@ from modules import settings, connections, persistence
 from modules.admin.admin_manager import AdminManager
 
 CONFIG_FILE_PATH = 'config.json'
-PRIVATE_CONFIG_FILE_PATH = 'privateconfig.json'
+PRIVATE_CONFIG_FILE_PATH = 'private_config.json'
 
 # add path to make importing plugins work
 sys.path.insert(
@@ -52,7 +52,8 @@ class Yaib(object):
 
         # load configuration
         try:
-            f = open(CONFIG_FILE_PATH)
+            with open(CONFIG_FILE_PATH, 'r') as f:
+                config_content = f.read()
         except:  # TODO: Catch the real exceptions here
             logging.error(
                 "Could not open configuration file {}. Quitting.".format(
@@ -61,8 +62,9 @@ class Yaib(object):
             )
             sys.exit(1)
 
+        config = {}
         try:
-            self.config = util.dictToObject(json.loads(f.read()))
+            config = json.loads(config_content)
             logging.info("Loaded configuration from %s" % CONFIG_FILE_PATH)
         except ValueError as e:
             logging.error(
@@ -72,6 +74,37 @@ class Yaib(object):
                 )
             )
             sys.exit(1)
+
+        # try loading private config file
+        private_config_content = ''
+        try:
+            with open(PRIVATE_CONFIG_FILE_PATH, 'r') as private_config_file:
+                private_config_content = private_config_file.read()
+        except:  # TODO: catch real exceptions
+            logging.warning("Could not open private config file {}.".format(
+                PRIVATE_CONFIG_FILE_PATH
+            ))
+
+        private_config = {}
+        try:
+            private_config = json.loads(private_config_content)
+            logging.info(
+                "Loaded private configuration from %s" % CONFIG_FILE_PATH)
+        except ValueError as e:
+            logging.error(
+                'Could not parse private config file {}.'.format(
+                    PRIVATE_CONFIG_FILE_PATH,
+                )
+            )
+
+        # merge private and public config and convert to object
+        config.update(private_config)
+
+        self.config = util.dictToObject(config)
+
+        # get required fields from config
+        self.command_prefix = self.config.connection.command_prefix
+        self.nick = self.config.nick
 
         # load settings module based on configuration
         # TODO: move this config check to settings module itself
@@ -102,10 +135,6 @@ class Yaib(object):
         self.loadPlugins()
 
     def subscribeToEvents(self):
-        # subscribe to events from the default modules
-        pub.subscribe(self.onSettingsUpdated, 'settings:updated')
-        pub.subscribe(self.onSettingsUpdated, 'settings:loaded')
-
         # subscribe to events from the server connections
         pub.subscribe(self.onConnected, 'connection:connected')
         pub.subscribe(self.onMessageOfTheDay, 'connection:messageOfTheDay')
@@ -130,10 +159,6 @@ class Yaib(object):
         pub.subscribe(self.onPong, 'connection:pong')
         pub.subscribe(self.onIRCUnknown, 'connection:IRCUnknown')
 
-    def onSettingsUpdated(self):
-        # set command prefix
-        self.command_prefix = self.settings.get('connection.command_prefix')
-
     def start(self):
         """
         Called after initialization. Connects to the servers in the settings.
@@ -142,29 +167,24 @@ class Yaib(object):
         connection = connections.irc
         self.connection_factory = connection.connectToServer(
             self.config.connection,
-            self
+            self.nick
         )
         connection.start()
 
     def createDefaultSettings(self):
         """Ensure the default settings exist from the config file."""
         # TODO: just load everything from config without explicitly listing
-        default_channels = [
-            c.strip() for c in
-            self.config.default_channels.split(',')
-        ]
+        if isinstance(self.config.default_channels, list):
+            default_channels = self.config.default_channels
+        else:
+            default_channels = [
+                c.strip() for c in
+                self.config.default_channels.split(',')
+            ]
 
         self.settings.setMulti({
             'nick': self.config.nick,
             'default_channels': default_channels,
-
-            'connection.command_prefix': self.config.connection.command_prefix,
-            'connection.keepalive_delay':
-                self.config.connection.keepalive_delay,
-            'connection.max_flood': self.config.connection.max_flood,
-            'connection.flood_interval': self.config.connection.flood_interval,
-            'connection.flood_wait': self.config.connection.flood_wait,
-
             'shutup_duration': 30
             },
             initial=True
@@ -342,7 +362,7 @@ class Yaib(object):
         # remove nick from front
         processed = message[len(self.nick):]
         processed = processed.lstrip(
-            self.settings.get('nick_command_delimiters')
+            self.config.connection.nick_command_delimiters
         )
 
         # split it into command name and the arguments
