@@ -20,6 +20,7 @@ import time
 import imp
 import json
 import logging
+import traceback
 from pubsub import pub
 
 from tools import util
@@ -236,6 +237,7 @@ class Yaib(object):
                     logging.error(
                         "Error importing plugin %s: %s" % (path, repr(e))
                     )
+                    traceback.print_exc()
                     return False
 
                 if hasattr(plugin_module, 'Plugin'):
